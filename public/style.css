@@ -225,13 +225,24 @@ body {
 .overlay .card { width: 100%; max-width: 480px; animation: pop-in .25s cubic-bezier(.3,1.3,.5,1); }
 @keyframes pop-in { from { opacity: 0; transform: scale(.92) translateY(14px); } to { opacity: 1; transform: none; } }
 
+/* ---------- 面板内食物托盘 ---------- */
 .food-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
 .food-head h2 { font-size: 19px; }
 .muted { color: var(--muted); font-size: 13px; margin-top: 3px; }
 .close { border: none; background: #f5e9d5; border-radius: 50%; width: 34px; height: 34px; cursor: pointer; font-size: 14px; color: var(--ink); transition: all .15s; }
 .close:hover { background: var(--red); color: #fff; }
 
-.food-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.food-tray { padding: 14px 16px; }
+.food-tray-head { display: flex; align-items: center; gap: 10px; font-size: 14.5px; font-weight: 700; margin-bottom: 10px; }
+.food-coins { margin-left: auto; font-size: 12.5px; color: #d9933a; font-weight: 700; }
+.food-tray .close { width: 26px; height: 26px; font-size: 11px; }
+.food-tray-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.food-tray-grid .food-item { padding: 8px 10px; gap: 9px; border-radius: 13px; }
+.food-tray-grid .food-emoji { font-size: 26px; }
+.food-tray-grid .food-name { font-size: 13.5px; }
+.food-tray-grid .food-desc { font-size: 11px; margin-top: 1px; }
+.food-tray-grid .food-cost { font-size: 11.5px; margin-top: 2px; }
+
 .food-item {
   display: flex; align-items: center; gap: 12px; padding: 12px;
   border: 2px solid #f1e4cd; border-radius: 16px; cursor: pointer; background: #fffdf6;
@@ -245,6 +256,10 @@ body {
 .food-name { font-weight: 700; font-size: 14.5px; }
 .food-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
 .food-cost { font-size: 12.5px; color: #d9933a; font-weight: 700; margin-top: 3px; }
+
+@media (max-width: 380px) {
+  .food-tray-grid { grid-template-columns: 1fr; }
+}
 
 .adopt-card { text-align: center; padding: 34px 26px; }
 .adopt-egg { font-size: 64px; display: inline-block; animation: egg-wobble 2.4s ease-in-out infinite; }

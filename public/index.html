@@ -6,7 +6,7 @@
   <title>云宠物 CloudPet · 投喂它, 陪它长大</title>
   <meta name="description" content="一只住在云上的电子宠物: 投喂、玩耍、升级、进化。">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐱</text></svg>">
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
   <div class="app">
@@ -84,6 +84,15 @@
           </div>
         </div>
 
+        <div class="card food-tray" id="food-tray" hidden>
+          <div class="food-tray-head">
+            <span>🍖 今天吃点什么?</span>
+            <span class="food-coins" id="food-coins"></span>
+            <button class="close" id="food-close">✕</button>
+          </div>
+          <div class="food-tray-grid" id="food-grid"></div>
+        </div>
+
         <div class="card log-card">
           <div class="log-title">📜 成长日记</div>
           <ul class="log" id="log"></ul>
@@ -92,20 +101,6 @@
     </main>
 
     <footer class="footer">CloudPet · 宠物状态会随真实时间变化, 记得常回来看看它 💤</footer>
-  </div>
-
-  <!-- 投喂弹窗 -->
-  <div class="overlay" id="food-overlay" hidden>
-    <div class="card food-card">
-      <div class="food-head">
-        <div>
-          <h2>今天吃点什么?</h2>
-          <p class="muted" id="food-coins">钱包: 🪙 50</p>
-        </div>
-        <button class="close" id="food-close">✕</button>
-      </div>
-      <div class="food-grid" id="food-grid"></div>
-    </div>
   </div>
 
   <!-- 领养弹窗 -->
@@ -167,7 +162,7 @@
     </div>
   </div>
 
-  <script src="pet-art.js?v=4"></script>
-  <script src="app.js?v=4"></script>
+  <script src="pet-art.js?v=5"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>

@@ -16,7 +16,7 @@
     btnFeed: $('#btn-feed'), btnPlay: $('#btn-play'), btnSound: $('#btn-sound'), btnPets: $('#btn-pets'),
     log: $('#log'),
     petImg: $('#pet-img'),
-    foodOverlay: $('#food-overlay'), foodGrid: $('#food-grid'), foodCoins: $('#food-coins'), foodClose: $('#food-close'),
+    foodTray: $('#food-tray'), foodGrid: $('#food-grid'), foodCoins: $('#food-coins'), foodClose: $('#food-close'),
     adoptOverlay: $('#adopt-overlay'), adoptName: $('#adopt-name'), adoptOk: $('#btn-adopt-ok'), adoptHint: $('#adopt-hint'),
     adoptImgBtn: $('#btn-adopt-img'), adoptImgInput: $('#adopt-img-input'),
     adoptImgPreview: $('#adopt-img-preview'), adoptImgThumb: $('#adopt-img-thumb'),
@@ -315,10 +315,10 @@
     showLevelup(events);
   }
 
-  // ---------------- 投喂 ----------------
+  // ---------------- 投喂 (食物托盘在面板内, 不遮挡宠物) ----------------
   function renderFood() {
     const p = S.pet;
-    els.foodCoins.textContent = `钱包: 🪙 ${p ? p.coins : 0}`;
+    els.foodCoins.textContent = `🪙 ${p ? p.coins : 0}`;
     els.foodGrid.innerHTML = '';
     for (const f of S.config.foods) {
       const item = document.createElement('div');
@@ -674,9 +674,16 @@
     });
     els.adoptName.addEventListener('input', () => { els.adoptHint.hidden = true; });
     els.adoptName.addEventListener('keydown', (e) => { if (e.key === 'Enter') els.adoptOk.click(); });
-    els.btnFeed.addEventListener('click', () => { sfx.click(); renderFood(); els.foodOverlay.hidden = false; });
-    els.foodClose.addEventListener('click', () => { els.foodOverlay.hidden = true; });
-    els.foodOverlay.addEventListener('click', (e) => { if (e.target === els.foodOverlay) els.foodOverlay.hidden = true; });
+    els.btnFeed.addEventListener('click', () => {
+      sfx.click();
+      if (els.foodTray.hidden) {
+        renderFood();
+        els.foodTray.hidden = false;
+      } else {
+        els.foodTray.hidden = true;
+      }
+    });
+    els.foodClose.addEventListener('click', () => { els.foodTray.hidden = true; });
     els.btnPlay.addEventListener('click', doPlay);
     window.addEventListener('resize', fitPet);
     document.addEventListener('visibilitychange', () => { if (!document.hidden && S.pet) loadPet(S.pet.id).catch(() => {}); });
