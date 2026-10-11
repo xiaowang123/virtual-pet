@@ -1,0 +1,16 @@
+# 本地一键启动 (数据存在命名卷 pet-data 里)
+services:
+  cloud-pet:
+    build: .
+    image: cloud-pet:latest
+    container_name: cloud-pet
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      - pet-data:/app/data
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+
+volumes:
+  pet-data:

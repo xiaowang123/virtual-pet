@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>CloudPet 形态展示</title>
+  <style>
+    body { margin: 0; padding: 32px; background: #fff; font-family: sans-serif; }
+    .row { display: flex; gap: 48px; align-items: flex-end; flex-wrap: wrap; }
+    .cell { text-align: center; }
+    .cell .box { display: inline-block; position: relative; }
+    .box .px-core { position: absolute; }
+    .cell h3 { margin: 10px 0 0; color: #333; }
+  </style>
+</head>
+<body>
+  <div class="row" id="row"></div>
+  <script src="pet-art.js"></script>
+  <script>
+    const stages = ['egg', 'kitten', 'cat', 'legend'];
+    const row = document.getElementById('row');
+    for (const key of stages) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.innerHTML = `<div class="box" id="box-${key}"><i class="px-core"></i></div><h3>${key}</h3>`;
+      row.appendChild(cell);
+      PET_ART.renderInto(key, {}, document.getElementById(`box-${key}`));
+    }
+  </script>
+</body>
+</html>

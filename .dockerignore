@@ -1,0 +1,13 @@
+node_modules
+data
+.git
+.github
+docs
+scripts
+test
+.npm-cache
+.env
+*.md
+Dockerfile
+docker-compose.yml
+.dockerignore

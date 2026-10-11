@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>云宠物 CloudPet · 投喂它, 陪它长大</title>
+  <meta name="description" content="一只住在云上的电子宠物: 投喂、玩耍、升级、进化。">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐱</text></svg>">
+  <link rel="stylesheet" href="style.css?v=4">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="logo"><span class="logo-paw">🐾</span>云宠物 <em>CloudPet</em></div>
+      <div class="top-actions">
+        <button id="btn-pets" class="chip" title="我的宠物 (可增删切换)">🐾 宠物列表</button>
+        <button id="btn-sound" class="chip" title="音效开关">🔊</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <!-- 舞台区: 宠物在这里生活 -->
+      <section class="stage" id="stage">
+        <div class="sky">
+          <div class="sun"></div>
+          <div class="cloud c1"></div>
+          <div class="cloud c2"></div>
+          <div class="cloud c3"></div>
+          <div class="ground"></div>
+          <div class="grass tuft1"></div>
+          <div class="grass tuft2"></div>
+          <div class="grass tuft3"></div>
+
+          <div class="pet-wrap" id="pet-wrap">
+            <div class="pet-scale" id="pet-scale">
+              <div class="pet-box" id="pet"><i class="px-core"></i></div>
+              <img class="pet-img" id="pet-img" alt="宠物形象" hidden>
+              <div class="pet-shadow"></div>
+            </div>
+          </div>
+
+          <div class="speech" id="speech" hidden></div>
+          <div class="fx" id="fx"></div>
+        </div>
+        <canvas id="confetti"></canvas>
+      </section>
+
+      <!-- 面板区: 状态与操作 -->
+      <aside class="panel">
+        <div class="card pet-card">
+          <div class="pet-head">
+            <div class="pet-name">
+              <span id="pet-name">…</span>
+              <button id="btn-rename" class="mini" title="改名">✏️</button>
+            </div>
+            <span class="stage-badge" id="stage-badge">宠物蛋</span>
+          </div>
+          <div class="pet-sub">
+            <span id="pet-status">😺 心情不错</span>
+            <span id="pet-age">刚出生</span>
+          </div>
+
+          <div class="stat">
+            <div class="stat-row"><span>等级 Lv.<b id="stat-level">1</b></span><span id="stat-xp-text">0 / 40</span></div>
+            <div class="bar"><div class="fill fill-xp" id="bar-xp"></div></div>
+          </div>
+          <div class="stat">
+            <div class="stat-row"><span>🍚 饱食度</span><span id="stat-hunger-text">85</span></div>
+            <div class="bar"><div class="fill fill-hunger" id="bar-hunger"></div></div>
+          </div>
+          <div class="stat">
+            <div class="stat-row"><span>💖 心情</span><span id="stat-happy-text">80</span></div>
+            <div class="bar"><div class="fill fill-happy" id="bar-happy"></div></div>
+          </div>
+
+          <div class="coin-row">
+            <span class="coins">🪙 <b id="stat-coins">50</b></span>
+            <span class="evo-tip" id="evo-tip"></span>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-feed" id="btn-feed">🍖 投喂</button>
+            <button class="btn btn-play" id="btn-play">🎾 玩耍</button>
+          </div>
+        </div>
+
+        <div class="card log-card">
+          <div class="log-title">📜 成长日记</div>
+          <ul class="log" id="log"></ul>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="footer">CloudPet · 宠物状态会随真实时间变化, 记得常回来看看它 💤</footer>
+  </div>
+
+  <!-- 投喂弹窗 -->
+  <div class="overlay" id="food-overlay" hidden>
+    <div class="card food-card">
+      <div class="food-head">
+        <div>
+          <h2>今天吃点什么?</h2>
+          <p class="muted" id="food-coins">钱包: 🪙 50</p>
+        </div>
+        <button class="close" id="food-close">✕</button>
+      </div>
+      <div class="food-grid" id="food-grid"></div>
+    </div>
+  </div>
+
+  <!-- 领养弹窗 -->
+  <div class="overlay" id="adopt-overlay" hidden>
+    <div class="card adopt-card">
+      <div class="adopt-egg">🥚</div>
+      <h2>领养一只宠物蛋</h2>
+      <p class="muted">喂它好吃的, 陪它玩耍, 它会慢慢升级进化哦</p>
+      <input id="adopt-name" maxlength="12" placeholder="给它起个名字吧" autocomplete="off">
+      <p class="adopt-hint" id="adopt-hint" hidden>先给它起个名字吧~</p>
+      <div class="adopt-img-row">
+        <button class="chip" id="btn-adopt-img" type="button">📷 自定义形象(可选)</button>
+        <input type="file" id="adopt-img-input" accept="image/*" hidden>
+        <span class="adopt-img-preview" id="adopt-img-preview" hidden>
+          <img id="adopt-img-thumb" alt="形象预览">
+          <button class="mini-x" id="adopt-img-remove" type="button" title="移除图片">✕</button>
+        </span>
+      </div>
+      <p class="muted adopt-img-note" id="adopt-img-note" hidden>自定义形象的宠物, 升级时外观保持不变</p>
+      <button class="btn btn-feed" id="btn-adopt-ok">🐾 领养</button>
+    </div>
+  </div>
+
+  <!-- 我的宠物列表 -->
+  <div class="overlay" id="pets-overlay" hidden>
+    <div class="card pets-card">
+      <div class="food-head">
+        <div>
+          <h2>我的宠物</h2>
+          <p class="muted" id="pets-count"></p>
+        </div>
+        <button class="close" id="pets-close">✕</button>
+      </div>
+      <ul class="pets-list" id="pets-list"></ul>
+      <button class="btn btn-feed" id="btn-pets-add">➕ 领养新宠物</button>
+    </div>
+  </div>
+
+  <!-- 确认弹窗 (替代原生 confirm, 在应用内浏览器里更可靠) -->
+  <div class="overlay" id="confirm-overlay" hidden>
+    <div class="card confirm-card">
+      <p class="confirm-text" id="confirm-text"></p>
+      <div class="confirm-actions">
+        <button class="btn btn-ghost" id="confirm-no">再想想</button>
+        <button class="btn btn-feed" id="confirm-yes">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 升级横幅 -->
+  <div class="levelup" id="levelup" hidden>
+    <div class="levelup-text" id="levelup-text">🎉 升级啦!</div>
+  </div>
+  <!-- 进化横幅 -->
+  <div class="evolve" id="evolve" hidden>
+    <div class="evolve-inner">
+      <div class="evolve-name" id="evolve-name">✨ 进化!</div>
+      <div class="evolve-stage" id="evolve-stage">灵猫</div>
+    </div>
+  </div>
+
+  <script src="pet-art.js?v=4"></script>
+  <script src="app.js?v=4"></script>
+</body>
+</html>
