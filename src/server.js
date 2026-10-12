@@ -65,22 +65,19 @@ app.get('/api/config', (req, res) => {
   });
 });
 
-// 宠物列表 (按 ids 批量查询, 用于"我的宠物"面板)
+// 宠物列表: 不带 ids 返回全部 —— 前端以此为准, 浏览器不负责"记住存在哪些宠物";
+// 带 ?ids=a,b 时按 id 批量查询 (兼容旧版客户端)
 app.get('/api/pets', async (req, res, next) => {
   try {
-    const ids = typeof req.query.ids === 'string'
-      ? req.query.ids.split(',').filter(Boolean).slice(0, 50)
-      : [];
-    const pets = [];
-    for (const id of ids) {
-      const pet = findPet(id);
-      if (!pet) continue;
+    const pets = typeof req.query.ids === 'string'
+      ? req.query.ids.split(',').filter(Boolean).slice(0, 50).map(findPet).filter(Boolean)
+      : store.list();
+    for (const pet of pets) {
       const elapsed = Date.now() - pet.lastTickAt;
       game.applyDecay(pet, Date.now());
       if (elapsed > 60 * 1000) await store.save(pet);
-      pets.push(toPublic(pet));
     }
-    res.json({ pets });
+    res.json({ pets: pets.map(toPublic) });
   } catch (err) { next(err); }
 });
 

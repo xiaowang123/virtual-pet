@@ -470,8 +470,7 @@
       pet = await api(`/api/pets/${res.id}/image`, { method: 'PUT', body: S.adoptImageBlob });
     }
     clearAdoptImageUI();
-    S.petIds.push(pet.id);
-    localStorage.setItem('cloudpet.pets', JSON.stringify(S.petIds));
+    if (!S.petIds.includes(pet.id)) S.petIds.push(pet.id);
     localStorage.setItem('cloudpet.petId', pet.id);
     els.adoptOverlay.hidden = true;
     els.adoptHint.hidden = true;
@@ -485,9 +484,10 @@
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
-  async function fetchPets(ids) {
-    if (!ids.length) return [];
-    const res = await api(`/api/pets?ids=${ids.map(encodeURIComponent).join(',')}`);
+  // 全量拉取宠物 (服务器是唯一事实来源), 顺带同步内存里的 id 缓存
+  async function fetchPets() {
+    const res = await api('/api/pets');
+    S.petIds = res.pets.map((p) => p.id);
     return res.pets;
   }
   function renderPetThumb(el, p) {
@@ -508,7 +508,7 @@
     els.petsList.innerHTML = '';
     els.petsCount.textContent = '加载中…';
     try {
-      const pets = await fetchPets(S.petIds);
+      const pets = await fetchPets();
       renderPetList(pets);
     } catch (err) {
       els.petsCount.textContent = err.message;
@@ -548,14 +548,13 @@
         if (!ok) return;
         try {
           await api(`/api/pets/${p.id}`, { method: 'DELETE' });
-          S.petIds = S.petIds.filter((x) => x !== p.id);
-          localStorage.setItem('cloudpet.pets', JSON.stringify(S.petIds));
           log(`放生了 ${p.name} 💨`, 'log-err');
           sfx.error();
+          const pets = await fetchPets().catch(() => []);
           if (S.pet && S.pet.id === p.id) {
-            if (S.petIds.length) {
-              localStorage.setItem('cloudpet.petId', S.petIds[0]);
-              await loadPet(S.petIds[0]);
+            if (pets.length) {
+              localStorage.setItem('cloudpet.petId', pets[0].id);
+              await loadPet(pets[0].id);
               bubble(`${S.pet.name} 现在陪着你~`);
             } else {
               localStorage.removeItem('cloudpet.petId');
@@ -565,7 +564,6 @@
               showAdopt();
             }
           }
-          const pets = await fetchPets(S.petIds).catch(() => []);
           renderPetList(pets);
         } catch (err) {
           bubble(err.message, 3200);
@@ -719,30 +717,16 @@
 
     try {
       S.config = await api('/api/config');
-      // 我的宠物列表 (兼容旧版本的单宠物存储)
-      try {
-        S.petIds = JSON.parse(localStorage.getItem('cloudpet.pets') || '[]');
-        if (!Array.isArray(S.petIds)) S.petIds = [];
-      } catch (_) { S.petIds = []; }
-      const petId = localStorage.getItem('cloudpet.petId');
-      if (petId && !S.petIds.includes(petId)) S.petIds.unshift(petId);
-      S.petIds = S.petIds.filter((x, i) => x && S.petIds.indexOf(x) === i);
-      localStorage.setItem('cloudpet.pets', JSON.stringify(S.petIds));
-
-      if (S.petIds.length) {
-        const targetId = petId || S.petIds[0];
-        try {
-          await loadPet(targetId);
-          startPolling();
-          bubble(`欢迎回来! 我是 ${S.pet.name}~`);
-          return;
-        } catch (err) {
-          if (err.payload && err.payload.error !== '宠物不存在') throw err;
-          S.petIds = S.petIds.filter((x) => x !== targetId); // 已不存在, 换下一只或走领养
-          localStorage.setItem('cloudpet.pets', JSON.stringify(S.petIds));
-          if (S.petIds.length) { await loadPet(S.petIds[0]); startPolling(); return; }
-          localStorage.removeItem('cloudpet.petId');
-        }
+      // 宠物以服务器为准: 全量拉取, 浏览器只把 petId 当作"当前看的是哪只"的偏好。
+      // 存储被清/换设备/换域名都只影响这个偏好, 不会再出现"宠物不见了"
+      const pets = await fetchPets();
+      if (pets.length) {
+        const preferredId = localStorage.getItem('cloudpet.petId');
+        const targetId = S.petIds.includes(preferredId) ? preferredId : S.petIds[0];
+        await loadPet(targetId);
+        startPolling();
+        bubble(`欢迎回来! 我是 ${S.pet.name}~`);
+        return;
       }
       showAdopt();
       startPolling();

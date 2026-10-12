@@ -290,7 +290,7 @@ body {
 }
 .adopt-img-note { text-align: left; margin: -6px 0 14px; }
 
-/* 我的宠物列表 */
+/* 宠物列表 */
 .pets-card { max-width: 430px; }
 .pets-card .btn { width: 100%; margin-top: 14px; }
 .pets-list { list-style: none; max-height: 320px; overflow-y: auto; margin: 0 -6px; }
